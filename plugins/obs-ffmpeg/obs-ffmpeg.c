@@ -36,6 +36,14 @@ extern struct obs_encoder_info nvenc_encoder_info;
 extern struct obs_encoder_info vaapi_encoder_info;
 #endif
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(57, 107, 100)
+#define LIBAVCODEC_V4L2_M2M_AVAILABLE
+#endif
+
+#ifdef LIBAVCODEC_V4L2_M2M_AVAILABLE
+extern struct obs_encoder_info v4l2_m2m_encoder_info;
+#endif
+
 #ifndef __APPLE__
 
 static const char *nvenc_check_name = "nvenc_check";
@@ -215,6 +223,14 @@ static bool vaapi_supported(void)
 }
 #endif
 
+#ifdef LIBAVCODEC_V4L2_M2M_AVAILABLE
+static bool v4l2_m2m_supported(void)
+{
+	AVCodec *vaenc = avcodec_find_encoder_by_name("h264_v4l2_m2m");
+	return !!vaenc;	
+}
+#endif
+
 #ifdef _WIN32
 extern void jim_nvenc_load(void);
 extern void jim_nvenc_unload(void);
@@ -253,6 +269,12 @@ bool obs_module_load(void)
 	if (vaapi_supported()) {
 		blog(LOG_INFO, "FFMPEG VAAPI supported");
 		obs_register_encoder(&vaapi_encoder_info);
+	}
+#endif
+#if !defined(_WIN32) && defined(LIBAVCODEC_V4L2_M2M_AVAILABLE)
+	if (v4l2_m2m_supported()) {
+		blog(LOG_INFO, "FFMPEG V4L2_M2M supported");
+		obs_register_encoder(&v4l2_m2m_encoder_info);
 	}
 #endif
 #endif

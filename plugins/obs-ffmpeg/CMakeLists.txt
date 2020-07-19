@@ -33,7 +33,7 @@ set(obs-ffmpeg_SOURCES
 
 if(UNIX AND NOT APPLE)
 	list(APPEND obs-ffmpeg_SOURCES
-		obs-ffmpeg-vaapi.c)
+		obs-ffmpeg-vaapi.c obs-ffmpeg-v4l2_m2m.c)
 	LIST(APPEND obs-ffmpeg_PLATFORM_DEPS
 		${LIBVA_LBRARIES})
 endif()
